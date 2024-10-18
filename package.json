@@ -21,6 +21,10 @@
     "drag",
     "dragging"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gerwld/react-native-drag-n-drop-everywhere.git"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
