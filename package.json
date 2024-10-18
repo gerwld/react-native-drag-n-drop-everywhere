@@ -1,16 +1,29 @@
 {
   "name": "react-native-drag-n-drop-everywhere",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "modern": "dist/index.modern.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "gerwld",
+  "license": "MIT",
+  "description": "React Native Drag-n-drop",
+  "keywords": [
+    "react",
+    "native",
+    "drag-n-drop",
+    "react-native",
+    "drag",
+    "dragging"
+  ],
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "rollup": "^4.24.0",
     "rollup-plugin-typescript2": "^0.36.0",
