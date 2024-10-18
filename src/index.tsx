@@ -1,98 +1,79 @@
-import React, { useState } from "react"
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import {
-  Gesture,
-  GestureDetector,
-} from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import React from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { useSharedValue, useAnimatedRef, useAnimatedReaction, scrollTo } from "react-native-reanimated";
+import DragItem from "./DragItem";
 
-
-export function Draglist(props) {
+export function DragList(props) {
   const {
     data,
     style,
     contentContainerStyle,
     keyExtractor,
-    onReordered,
-    renderItem } = props;
+    renderItem,
+    renderGrip,
+    passVibration,
+    borderRadius = 10,
+    backgroundOnHold = "#e3e3e3"
+  } = props;
 
-  const [isDragging, setIsDragging] = useState(false);
+  let itemsGap = props.itemsGap || 5;
+  let itemHeight = props.itemHeight || 50;
 
-
-  const onDragStart = (event) => {
-    setIsDragging(true);
-    console.log("start")
+  // ['id', 'id'] => {'id': 0, 'id': 1}
+  function listToObject(list) {
+    const object = {};
+    list.forEach((item, i) => {
+      object[item] = i;
+    });
+    return object;
   }
+  // to get position, use: positions.value["id"]
+  const positions = useSharedValue(listToObject(data));
+  const scrollY = useSharedValue(0);
+  const scrollViewRef = useAnimatedRef();
 
-  const onDragEnd = (event) => {
-    setIsDragging(false);
-    console.log("end")
-  }
-
-
-
-
-  return (
-
-    <ScrollView style={style} scrollEnabled={!isDragging}>
-
-      <View style={contentContainerStyle}>
-        {data?.map((item, index) => (
-          <DragItem {...{ key: keyExtractor(item), item, index, renderItem }} />
-        ))}
-      </View>
-
-    </ScrollView>
-  )
-}
-
-const DragItem = ({ item, index, renderItem }) => {
-  const pressed = useSharedValue<boolean>(false);
-  const offset = useSharedValue<number>(0);
-  
-
-  const animatedStyles = useAnimatedStyle(() => ({
-    zIndex: (pressed.value ? 1 : 0),
-    top: offset.value + (50 * (index + 1)),
-    height: 50,
-    backgroundColor: pressed.value ? '#b58df1' : 'transparent',
-  }));
-
-  const pan = Gesture.Pan()
-    .onBegin(() => {
-      pressed.value = true;
-    })
-    .onChange((event) => {
-      offset.value = event.translationY;
-    })
-    .onFinalize(() => {
-      offset.value = withSpring(0);
-      pressed.value = false;
-    })
-
-  const styles = StyleSheet.create({
-    block: {
-      width: "100%",
-      position: "absolute",
-      top: (50 * (index + 1)),
-      flexDirection: "row"
-    },
-    childContent: {
-      flex: 1,
-      maxWidth: "80%",
+  useAnimatedReaction(
+    () => scrollY.value,
+    (scrolling) => {
+      scrollTo(scrollViewRef, 0, scrolling, false);
     }
+  );
+
+  const containerStyles = StyleSheet.create({
+    scrollViewContent: {
+      height: data.length * itemHeight + itemsGap,
+    },
   });
 
   return (
-    <Animated.View {
-      ...{
-        style: [styles.block, animatedStyles]
-      }
-    }>
-      <View style={styles.childContent}>{renderItem({ item, })}</View>
-      <GestureDetector gesture={pan}>
-        <Text>dfbd</Text>
-      </GestureDetector>
-    </Animated.View>
-  )
+    <ScrollView
+      ref={scrollViewRef}
+      scrollEventThrottle={16}
+      contentContainerStyle={[contentContainerStyle, containerStyles.scrollViewContent]}
+      style={style}
+    >
+      <View style={contentContainerStyle}>
+        {data?.map((item, index) => (
+          <DragItem
+            {...{
+              // @ts-ignore
+              key: keyExtractor(item),
+              item,
+              index,
+              positions,
+              scrollY,
+              itemsCount: data.length,
+              itemsGap,
+              itemHeight,
+              renderGrip,
+              renderItem,
+              passVibration,
+              borderRadius,
+              backgroundOnHold,
+            }}
+          />
+        ))}
+      </View>
+    </ScrollView>
+  );
 }
