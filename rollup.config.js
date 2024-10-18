@@ -5,44 +5,26 @@ import json from '@rollup/plugin-json';
 import pkg from './package.json' with { type: "json" };
 
 export default [
-  // CommonJS (for Node) and ES module (for bundlers) build.
   {
-    input: 'src/index.ts',
+    input: 'src/index.tsx',
+    external: ['react', 'react-native'], // Treat as external dependencies
     output: [
       {
         file: pkg.main,  // CommonJS build
-        format: 'cjs',   // CommonJS format
+        format: 'cjs',
         sourcemap: true
       },
       {
-        file: pkg.module,  // ES Module build
-        format: 'es',      // ES module format
+        file: pkg.module,  // ES module build
+        format: 'es',
         sourcemap: true
       }
     ],
     plugins: [
-      resolve(),        // Resolve modules
-      commonjs(),       // Convert CommonJS modules to ES6
-      typescript({      // Compile TypeScript
-        tsconfig: "./tsconfig.json"
-      }),
-      json()
-    ]
-  },
-  // Modern JS build for modern browsers
-  {
-    input: 'src/index.ts',
-    output: {
-      file: pkg.modern,  // Modern JavaScript build
-      format: 'es',      // ES module format
-      sourcemap: true
-    },
-    plugins: [
       resolve(),
       commonjs(),
-      typescript({
-        tsconfig: "./tsconfig.json"
-      })
+      typescript({ tsconfig: "./tsconfig.json" }),
+      json()
     ]
   }
 ];
