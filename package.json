@@ -1,6 +1,6 @@
 {
   "name": "react-native-drag-n-drop-everywhere",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -12,7 +12,7 @@
   },
   "author": "gerwld",
   "license": "MIT",
-  "description": "React Native Drag-n-drop",
+  "description": "Scrollable React Native Draglist library that doesn't use Flatlist, which sometimes may cause re-render issues. Designed to work on Web, iOS & Android.",
   "keywords": [
     "react",
     "native",
