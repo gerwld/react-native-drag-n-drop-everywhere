@@ -127,7 +127,7 @@ const DragItem = (props) => {
     <Animated.View style={[styles.block, { borderRadius: itemBorderRadius, marginBottom: itemsGap }, itemContainerStyle, animatedStyles]}>
       <View style={styles.childContent}>{renderItem({ item })}</View>
       <GestureDetector gesture={pan}>
-        {renderGrip ? <View style={styles.grip}>{renderGrip()}</View> : <Text style={styles.useRG}>use the renderGrip prop :)</Text>}
+        {renderGrip ? <View style={styles.grip}>{typeof renderGrip === "function" ? renderGrip() : renderGrip}</View> : <Text style={styles.useRG}>use the renderGrip prop :)</Text>}
       </GestureDetector>
     </Animated.View>
   );
