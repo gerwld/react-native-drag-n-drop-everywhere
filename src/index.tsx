@@ -26,12 +26,32 @@ export function DragList(props) {
     throw new Error("The \"dataIDs / data\" prop should be []. \nProvided:" + JSON.stringify((data || dataIDs)));
   }
 
+  if (
+    renderGrip && 
+    (
+      // If it's not a valid React component (functional or class-based)
+      (typeof renderGrip === 'object' && renderGrip.prototype && renderGrip.prototype.isReactComponent) || 
+      !React.isValidElement(renderGrip) // If it's not valid JSX
+    )
+  ) {
+    throw new Error("The \"renderGrip\" prop should be either JSX or a React component. \nProvided: " + JSON.stringify(renderGrip));
+  }
+
   if(!renderItem) {
     // @ts-ignore
     throw new Error(
       'The "renderItem" prop is missing. You should pass R.C that will render your item based on identificator thar it recieves as {item: id} in the first argument. Example: `function renderItem({item}) {}'
     );
   }
+
+  if(!callbackNewDataIds) {
+    // @ts-ignore
+    throw new Error(
+      'The "callbackNewDataIds" prop is missing. You should pass a function that will recieve an array of sorted items IDs. \n\nExample: `function getChanges(newArray) {}\n\n* Mention: do not change dataIDs argument directly, or it will cause performance issues.`'
+    );
+  }
+
+  
 
   let itemsGap = props.itemsGap || 5;
   let itemHeight = props.itemHeight || 50;
@@ -71,7 +91,13 @@ export function DragList(props) {
 
       if (prevArrayFromPositions.current !== stringifiedArray) {
         prevArrayFromPositions.current = stringifiedArray;
-        runOnJS(callbackNewDataIds)(arrayFromPositions);
+
+        if(callbackNewDataIds){
+          if(typeof callbackNewDataIds !== "function") {
+            throw new Error("The \"callbackNewDataIds\" prop should be function type. \nProvided: " + JSON.stringify(renderGrip));
+          }
+          else runOnJS(callbackNewDataIds)(arrayFromPositions);
+        }
       }
     }
     // @ts-ignore
