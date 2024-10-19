@@ -3,9 +3,8 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useSharedValue, useAnimatedRef, useAnimatedReaction, scrollTo, runOnJS } from "react-native-reanimated";
 import DragItem from "./DragItem";
 
-export function DragList(props) {
+function DragList(props) {
   const {
-    dataIDs,
     data,
     style,
     callbackNewDataIds,
@@ -18,23 +17,17 @@ export function DragList(props) {
     backgroundOnHold = "#e3e3e3"
   } = props;
 
+  let dataIDs = props?.dataIDs || data;
+  let itemsGap = props.itemsGap || 5;
+  let itemHeight = props.itemHeight || 50;
+  let itemBorderRadius = props.itemBorderRadius || 8;
+
   if(!dataIDs && !data) {
     throw new Error("The \"dataIDs / data\" prop is missing. It should contain an array of identificators of your list items, for example, uuid's.");
   }
 
   if((dataIDs || data) && !Array.isArray(dataIDs || data)) {
     throw new Error("The \"dataIDs / data\" prop should be []. \nProvided:" + JSON.stringify((data || dataIDs)));
-  }
-
-  if (
-    renderGrip && 
-    (
-      // If it's not a valid React component (functional or class-based)
-      (typeof renderGrip === 'object' && renderGrip.prototype && renderGrip.prototype.isReactComponent) || 
-      !React.isValidElement(renderGrip) // If it's not valid JSX
-    )
-  ) {
-    throw new Error("The \"renderGrip\" prop should be either JSX or a React component. \nProvided: " + JSON.stringify(renderGrip));
   }
 
   if(!renderItem) {
@@ -51,11 +44,10 @@ export function DragList(props) {
     );
   }
 
-  
+  if(typeof callbackNewDataIds !== "function") {
+    throw new Error("The \"callbackNewDataIds\" prop should be function type. \nProvided: " + JSON.stringify(renderGrip));
+  }
 
-  let itemsGap = props.itemsGap || 5;
-  let itemHeight = props.itemHeight || 50;
-  let itemBorderRadius = props.itemBorderRadius || 8;
 
   const keyExtractor = (id) => id;
 
@@ -67,44 +59,41 @@ export function DragList(props) {
     return object;
   }
 
-  const positions = useSharedValue(listToObject(dataIDs || data));
-  const currentRenderRef = React.useRef(1);  // TODO: better sort handler
+  const positions = useSharedValue(listToObject(dataIDs));
+  // const currentRenderRef = React.useRef(1);  // TODO: better sort handler
   const scrollY = useSharedValue(0);
   const scrollViewRef = useAnimatedRef();
 
-  const prevArrayFromPositions = React.useRef(null);
+  // const prevArrayFromPositions = React.useRef(null);
 
   // handles callback for new, sorted array
-  useAnimatedReaction(
-    () => positions.value,
-    (positionsValue) => {
-      if (currentRenderRef.current > 1) {
-      const arrayFromPositions = Object.entries(positions.value)
-      .sort(([, indexA], [, indexB]) => {
-        const numIndexA = indexA as number; // Assert type as number
-        const numIndexB = indexB as number; // Assert type as number
-        return numIndexA - numIndexB;
-      }) // Sort by the index (value)
-      .map(([id]) => id); // Extract only the id (key)
+  // useAnimatedReaction(
+  //   () => positions.value,
+  //   (positionsValue) => {
+  //     if (currentRenderRef.current > 1) {
+  //     const arrayFromPositions = Object.entries(positions.value)
+  //     .sort(([, indexA], [, indexB]) => {
+  //       const numIndexA = indexA as number; // Assert type as number
+  //       const numIndexB = indexB as number; // Assert type as number
+  //       return numIndexA - numIndexB;
+  //     }) // Sort by the index (value)
+  //     .map(([id]) => id); // Extract only the id (key)
 
-      const stringifiedArray = JSON.stringify(arrayFromPositions);
+  //     const stringifiedArray = JSON.stringify(arrayFromPositions);
 
-      if (prevArrayFromPositions.current !== stringifiedArray) {
-        prevArrayFromPositions.current = stringifiedArray;
+  //     if (prevArrayFromPositions.current !== stringifiedArray) {
+  //       prevArrayFromPositions.current = stringifiedArray;
 
-        if(callbackNewDataIds){
-          if(typeof callbackNewDataIds !== "function") {
-            throw new Error("The \"callbackNewDataIds\" prop should be function type. \nProvided: " + JSON.stringify(renderGrip));
-          }
-          else runOnJS(callbackNewDataIds)(arrayFromPositions);
-        }
-      }
-    }
-    // @ts-ignore
-    currentRenderRef?.current = (currentRenderRef?.current || 0) + 1
-    },
-    [currentRenderRef.current]
-  );
+  //       if(typeof callbackNewDataIds === "function"){
+  //          runOnJS(callbackNewDataIds)(arrayFromPositions);
+  //       }
+  //     }
+  //   }
+  //   // @ts-ignore
+  //   currentRenderRef?.current = (currentRenderRef?.current || 0) + 1
+  //   },
+  //   [currentRenderRef.current]
+  // );
 
   useAnimatedReaction(
     () => scrollY.value,
@@ -115,7 +104,7 @@ export function DragList(props) {
 
   const containerStyles = StyleSheet.create({
     scrollViewContent: {
-      height: dataIDs.length * itemHeight + itemsGap,
+      height: dataIDs.length * (itemHeight + itemsGap) + (contentContainerStyle?.paddingBottom || 0) + (contentContainerStyle?.paddingTop || 0),
     },
   });
 
@@ -123,7 +112,7 @@ export function DragList(props) {
     <ScrollView
       ref={scrollViewRef}
       scrollEventThrottle={16}
-      contentContainerStyle={[contentContainerStyle, containerStyles.scrollViewContent]}
+      contentContainerStyle={[containerStyles.scrollViewContent, contentContainerStyle]}
       style={style}
     >
       <View>
@@ -143,6 +132,7 @@ export function DragList(props) {
               itemBorderRadius,
               itemContainerStyle,
               passVibration,
+              callbackNewDataIds,
               backgroundOnHold,
             }}
           />
@@ -151,3 +141,5 @@ export function DragList(props) {
     </ScrollView>
   );
 }
+
+export default DragList;
