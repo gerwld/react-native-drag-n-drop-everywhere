@@ -1,11 +1,17 @@
 {
   "name": "react-native-drag-n-drop-everywhere",
-  "version": "1.2.1",
+  "version": "1.2.4",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "modern": "dist/index.modern.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "tsconfig.json"
+  ],
   "scripts": {
     "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
