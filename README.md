@@ -6,7 +6,7 @@ Built with `react-native-reanimated` and `react-native-gesture-handler`. Support
 
 | Web Preview | iOS Preview | Android Preview |
 | ----------- | --------------- | ----------- |
-| <img height="450" alt="Web Preview" src="https://github.com/chesshelper/chesshelper.github.io/blob/main/assets/storage/drag-n-drop/web.gif?raw=true"/> | <img height="450" alt="iOS Preview" src="https://github.com/chesshelper/chesshelper.github.io/blob/main/assets/storage/drag-n-drop/ios.gif?raw=true"/> | <img height="450" alt="Android Preview" src="https://github.com/chesshelper/chesshelper.github.io/blob/main/assets/storage/drag-n-drop/android.gif?raw=true"/> |
+| <img height="450" width="220" style="min-width: 200px;" alt="Web Preview" src="https://github.com/chesshelper/chesshelper.github.io/blob/main/assets/storage/drag-n-drop/web.gif?raw=true"/> | <img height="450" width="207" style="min-width: 200px;" alt="iOS Preview" src="https://github.com/chesshelper/chesshelper.github.io/blob/main/assets/storage/drag-n-drop/ios.gif?raw=true"/> | <img height="450" width="207" style="min-width: 200px;" alt="Android Preview" src="https://github.com/chesshelper/chesshelper.github.io/blob/main/assets/storage/drag-n-drop/android.gif?raw=true"/> |
 
 ## Installation
 
@@ -64,8 +64,8 @@ const MyDragList = () => {g
   );
 
   const onUpdateCallback = (newSortedData) => {
-    // do not change dataIDsArray directly in useState. It will cause 2 ways binding and extra rerenders. 
-    // Instead, dispatch this value locally
+    // do not change dataIDsArray directly in useState. It will cause 2 way binding and extra rerenders. 
+    // Instead, dispatch this value localy
     console.log(newSortedData);
   }
 
@@ -73,8 +73,8 @@ const MyDragList = () => {g
     <DragList
       dataIDs={dataIDsArray}                  // array of id's, required
       renderItem={renderItem}                 // required
+      callbackNewDataIds={onUpdateCallback}   // required, callback for sorted result (dataIDs)
       renderGrip={renderGrip}
-      callbackNewDataIds={onUpdateCallback}   // required, sorted result callback
 
       style={{ paddingTop: 100 }}
       contentContainerStyle={{ paddingHorizontal: 10 }}
@@ -104,6 +104,7 @@ export default MyDragList
 |------------------------|------------|------------|----------|-----------------------------------------------------------------------------|
 | `dataIDs`              | Array      | `[]`       | Yes      | An array of unique identifiers corresponding to each list item.             |
 | `renderItem`           | Function   | -          | Yes      | Function to render each list item. Takes `{ item }` as its argument.         |
+| `callbackNewDataIds`   | Function   | -          | Yes      | Callback that recieves changes (sorted array of dataIDs). Mention: do not change provided in dataIDs array directly in state. It will cause 2 way binding and extra rerenders.        |
 | `renderGrip`           | Function   | `null`     | No       | Optional function to render a grip for dragging.                            |
 | `itemsGap`             | Number     | `5`        | No       | The space (in pixels) between each list item.                               |
 | `itemHeight`           | Number     | `50`       | No       | The height (in pixels) of each item.                                        |
