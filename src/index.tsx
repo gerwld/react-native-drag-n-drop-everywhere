@@ -6,6 +6,7 @@ import DragItem from "./DragItem";
 export function DragList(props) {
   const {
     dataIDs,
+    data,
     style,
     callbackNewDataIds,
     contentContainerStyle,
@@ -16,6 +17,21 @@ export function DragList(props) {
     borderRadius,
     backgroundOnHold = "#e3e3e3"
   } = props;
+
+  if(!dataIDs && !data) {
+    throw new Error("The \"dataIDs / data\" prop is missing. It should contain an array of identificators of your list items, for example, uuid's.");
+  }
+
+  if((dataIDs || data) && !Array.isArray(dataIDs || data)) {
+    throw new Error("The \"dataIDs / data\" prop should be []. \nProvided:" + JSON.stringify((data || dataIDs)));
+  }
+
+  if(!renderItem) {
+    // @ts-ignore
+    throw new Error(
+      'The "renderItem" prop is missing. You should pass R.C that will render your item based on identificator thar it recieves as {item: id} in the first argument. Example: `function renderItem({item}) {}'
+    );
+  }
 
   let itemsGap = props.itemsGap || 5;
   let itemHeight = props.itemHeight || 50;
@@ -31,7 +47,7 @@ export function DragList(props) {
     return object;
   }
 
-  const positions = useSharedValue(listToObject(dataIDs));
+  const positions = useSharedValue(listToObject(dataIDs || data));
   const currentRenderRef = React.useRef(1);  // TODO: better sort handler
   const scrollY = useSharedValue(0);
   const scrollViewRef = useAnimatedRef();
