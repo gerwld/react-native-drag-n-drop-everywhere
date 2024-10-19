@@ -1,6 +1,6 @@
 {
   "name": "react-native-drag-n-drop-everywhere",
-  "version": "1.0.1",
+  "version": "1.2.1",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
