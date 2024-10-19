@@ -1,25 +1,28 @@
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useSharedValue, useAnimatedRef, useAnimatedReaction, scrollTo } from "react-native-reanimated";
+import { useSharedValue, useAnimatedRef, useAnimatedReaction, scrollTo, runOnJS } from "react-native-reanimated";
 import DragItem from "./DragItem";
 
 export function DragList(props) {
   const {
-    data,
+    dataIDs,
     style,
+    callbackNewDataIds,
     contentContainerStyle,
-    keyExtractor,
+    itemContainerStyle,
     renderItem,
     renderGrip,
     passVibration,
-    borderRadius = 10,
+    borderRadius,
     backgroundOnHold = "#e3e3e3"
   } = props;
 
   let itemsGap = props.itemsGap || 5;
   let itemHeight = props.itemHeight || 50;
+  let itemBorderRadius = props.itemBorderRadius || 8;
 
-  // ['id', 'id'] => {'id': 0, 'id': 1}
+  const keyExtractor = (id) => id;
+
   function listToObject(list) {
     const object = {};
     list.forEach((item, i) => {
@@ -27,10 +30,39 @@ export function DragList(props) {
     });
     return object;
   }
-  // to get position, use: positions.value["id"]
-  const positions = useSharedValue(listToObject(data));
+
+  const positions = useSharedValue(listToObject(dataIDs));
+  const currentRenderRef = React.useRef(1);  // TODO: better sort handler
   const scrollY = useSharedValue(0);
   const scrollViewRef = useAnimatedRef();
+
+  const prevArrayFromPositions = React.useRef(null);
+
+  // handles callback for new, sorted array
+  useAnimatedReaction(
+    () => positions.value,
+    (positionsValue) => {
+      if (currentRenderRef.current > 1) {
+      const arrayFromPositions = Object.entries(positions.value)
+      .sort(([, indexA], [, indexB]) => {
+        const numIndexA = indexA as number; // Assert type as number
+        const numIndexB = indexB as number; // Assert type as number
+        return numIndexA - numIndexB;
+      }) // Sort by the index (value)
+      .map(([id]) => id); // Extract only the id (key)
+
+      const stringifiedArray = JSON.stringify(arrayFromPositions);
+
+      if (prevArrayFromPositions.current !== stringifiedArray) {
+        prevArrayFromPositions.current = stringifiedArray;
+        runOnJS(callbackNewDataIds)(arrayFromPositions);
+      }
+    }
+    // @ts-ignore
+    currentRenderRef?.current = (currentRenderRef?.current || 0) + 1
+    },
+    [currentRenderRef.current]
+  );
 
   useAnimatedReaction(
     () => scrollY.value,
@@ -41,7 +73,7 @@ export function DragList(props) {
 
   const containerStyles = StyleSheet.create({
     scrollViewContent: {
-      height: data.length * itemHeight + itemsGap,
+      height: dataIDs.length * itemHeight + itemsGap,
     },
   });
 
@@ -52,23 +84,23 @@ export function DragList(props) {
       contentContainerStyle={[contentContainerStyle, containerStyles.scrollViewContent]}
       style={style}
     >
-      <View style={contentContainerStyle}>
-        {data?.map((item, index) => (
+      <View>
+        {dataIDs?.map((item, index) => (
           <DragItem
             {...{
-              // @ts-ignore
               key: keyExtractor(item),
               item,
               index,
               positions,
               scrollY,
-              itemsCount: data.length,
+              itemsCount: dataIDs.length,
               itemsGap,
               itemHeight,
               renderGrip,
               renderItem,
+              itemBorderRadius,
+              itemContainerStyle,
               passVibration,
-              borderRadius,
               backgroundOnHold,
             }}
           />
