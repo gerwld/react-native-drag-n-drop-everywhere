@@ -64,7 +64,7 @@ const MyDragList = () => {
 
   const onUpdateCallback = (newSortedData) => {
     // Do not change dataIDsArray directly in useState. It will cause two-way binding and extra re-renders. 
-    // Instead, dispatch this value locally
+    // Instead, dispatch this value
     console.log(newSortedData);
   };
 
@@ -93,6 +93,38 @@ const MyDragList = () => {
     />
   );
 };
+
+```
+
+## Preventing Extra Re-renders (optional)
+If you're using Redux state for storing `arrayIDs` and updating them in `callbackNewDataIds`, and you don't want it to update the value of the `arraysIDs` in the parent component (which will cause DragList extra re-renders),
+you can use simmilar construction to this:
+```JSX
+
+export const selectCategoriesArray = state => state.categories.itemsIdsArray;
+
+// This memoized selector returns new array only when itemsIdsArray.length is changed.
+// You may update it if you want to check it for exact id's match in both prevState and nextState,
+// which is more precise but will use more resources.
+
+ export const selectCategoriesArrayMemoizedStrict = (() => {
+  let prevCategoriesArrayLength = null;
+  let prevResult = null;
+
+  return createSelector(
+    [selectCategoriesArray],
+    (categoriesArray) => {
+      if (prevCategoriesArrayLength !== categoriesArray.length) {
+        prevCategoriesArrayLength = categoriesArray.length;
+        prevResult = categoriesArray;
+      }
+      return prevResult;
+    }
+  );s
+})();
+
+// Then, in your parent component, add:
+const categoriesArray = useSelector(selectCategoriesArrayMemoizedStrict)
 
 ```
 
