@@ -17,7 +17,7 @@ function DragList(props) {
     backgroundOnHold = "#e3e3e3"
   } = props;
 
-  let dataIDs = props?.dataIDs || data;
+  let dataIDs = props?.dataIDs || data || [];
   let itemsGap = props.itemsGap || 5;
   let itemHeight = props.itemHeight || 50;
   let itemBorderRadius = props.itemBorderRadius || 8;
