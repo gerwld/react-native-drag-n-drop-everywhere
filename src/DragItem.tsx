@@ -80,6 +80,18 @@ const DragItem = (props) => {
   const top = useSharedValue(positions.value[item] * (itemHeight + itemsGap));
   const [moving, setMoving] = useState(false);
 
+  // Updates the top position if positions.value (dataIDs) object was changed (without animation)
+  // only for the new items in dataIDs
+  useAnimatedReaction(
+    () => positions.value,
+    (currentPositions, prevPositions) => {
+      if(currentPositions !== prevPositions && !moving && !top.value) {
+        top.value = positions.value[item] * (itemHeight + itemsGap)
+      }
+    }
+  )
+  // animates top value correspondingly when position changes. 
+  // To get rid of animation rm withSpring from line 98.
   useAnimatedReaction(
     () => positions.value[item],
     (currentPosition, previousPosition) => {
@@ -92,14 +104,16 @@ const DragItem = (props) => {
 
   const isAndroid = Platform.OS === "android";
 
-  const animatedStyles = useAnimatedStyle(() => {
 
+  const animatedStyles = useAnimatedStyle(() => {
+    // to get rid of spreads and obj assign, basically 2 presets
     let anim = {
       zIndex: pressed.value ? 1 : 0,
       top: top.value + offset.value,  // adjusts the top based on the offset
       height: itemHeight,
       backgroundColor: pressed.value ? backgroundOnHold : "transparent",
     }
+
     let animBetter = {
       zIndex: pressed.value ? 1 : 0,
       top: top.value + offset.value,  // adjusts the top based on the offset
@@ -109,6 +123,7 @@ const DragItem = (props) => {
       shadowRadius: isAndroid ? 0 : 5,
       shadowOpacity: isAndroid ? 0 : withSpring(pressed.value ? 0.2 : 0)
     }
+
     if (isAndroid)
       return anim
     return animBetter
@@ -188,7 +203,6 @@ const styles = StyleSheet.create({
   },
   childContent: {
     flex: 1,
-    // maxWidth: "97%",
   },
   useRG: {
     width: 50,

@@ -95,6 +95,13 @@ function DragList(props) {
   //   [currentRenderRef.current]
   // );
 
+ // Update positions when dataIDs length changes
+ React.useEffect(() => {
+  positions.value = listToObject(dataIDs);
+  // console.log("dataIDs changed. Recalculating...", dataIDs.length);
+  
+}, [dataIDs]);
+
   useAnimatedReaction(
     () => scrollY.value,
     (scrolling) => {
