@@ -85,7 +85,7 @@ const DragItem = (props) => {
   useAnimatedReaction(
     () => positions.value,
     (currentPositions, prevPositions) => {
-      if(currentPositions !== prevPositions && !moving && !top.value) {
+      if (currentPositions !== prevPositions && !moving && !top.value) {
         top.value = positions.value[item] * (itemHeight + itemsGap)
       }
     }
@@ -107,16 +107,21 @@ const DragItem = (props) => {
 
   const animatedStyles = useAnimatedStyle(() => {
     // to get rid of spreads and obj assign, basically 2 presets
+
+    let topOffset = top.value + offset.value;  // adjusts the top based on the offset
+    if (isNaN(topOffset))
+      topOffset = 0
+
     let anim = {
       zIndex: pressed.value ? 1 : 0,
-      top: top.value + offset.value,  // adjusts the top based on the offset
+      top: topOffset,
       height: itemHeight,
       backgroundColor: pressed.value ? backgroundOnHold : "transparent",
     }
 
     let animBetter = {
       zIndex: pressed.value ? 1 : 0,
-      top: top.value + offset.value,  // adjusts the top based on the offset
+      top: topOffset,
       height: itemHeight,
       backgroundColor: pressed.value ? backgroundOnHold : "transparent",
       shadowOffset: { width: 0, height: 0 },
