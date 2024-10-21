@@ -38,33 +38,32 @@ const MyDragList = () => {
   const dataIDsArray = [
     "95a6885b-64ab-468c-9334-62c4095df459",
     "b592f039-b4d6-420a-b731-0964172ed142",
-    "b592f039-b4d6-420a-b731-0964172ed143",
+    "dba923d8-6743-47ab-8923-8e45eacdb204",
   ];
 
   const data = {
     "95a6885b-64ab-468c-9334-62c4095df459": 
-      { title: 'Entertainment', icon: "Popcorn", color: '#ff3939', type: "CATEGORY_TYPE_EXPENSES" },
+      { title: 'Entertainment', type: "CATEGORY_TYPE_EXPENSES" },
     "b592f039-b4d6-420a-b731-0964172ed142": 
-      { title: 'Groceries', icon: "Apple", color: '#3988ff', type: "CATEGORY_TYPE_EXPENSES" },
-    "b592f039-b4d6-420a-b731-0964172ed143": 
-      { title: 'Sport', icon: "Apple", color: '#3988ff', type: "CATEGORY_TYPE_EXPENSES" },
+      { title: 'Groceries', type: "CATEGORY_TYPE_EXPENSES" },
+    "dba923d8-6743-47ab-8923-8e45eacdb204": 
+      { title: 'Sport', type: "CATEGORY_TYPE_EXPENSES" },
   };
 
   const renderItem = ({ item }) => (
     <View style={{ paddingHorizontal: 20 }}>
       <Text>{data[item].title}</Text>
+      <Text>{data[item].type}</Text>
     </View>
   );
 
   const renderGrip = () => (
-    <View>
       <Text style={{ fontSize: 30, lineHeight: 30, fontWeight: "600" }}>:::</Text>
-    </View>
   );
 
   const onUpdateCallback = (newSortedData) => {
     // Do not change dataIDsArray directly in useState. It will cause two-way binding and extra re-renders. 
-    // Instead, dispatch this value locally
+    // Instead, dispatch this value
     console.log(newSortedData);
   };
 
@@ -95,6 +94,33 @@ const MyDragList = () => {
 };
 
 ```
+
+### Preventing Extra Re-renders (Optional)
+If you're using global state (e.g., Redux) to store `arrayIDs` and update them in `callbackNewDataIds`, and you want to prevent extra re-renders of your `DragList` component, use this approach in the parent component:
+```JSX
+
+import { useStore } from 'react-redux';
+import { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native'
+
+const ParentComponent = () => {
+  const store = useStore();
+  const [items, setItems] = useState(null);
+
+  useFocusEffect(() => { // or, useEffect if you don't want to focus it onGoback / etc
+    const state = store.getState();
+    const itemsIDs = state.categories.itemsIds; // your itemsIds in state
+    setItems(itemsIDs.slice()); // slice to avoid direct reference
+  });
+
+  if (!items) return null;
+
+  return (
+    // Your parent component JSX
+  );
+};
+```
+
 
 ## Props
 
