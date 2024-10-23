@@ -9,7 +9,7 @@ Built with `react-native-reanimated` and `react-native-gesture-handler`. Support
 
 ## Live Demo
 
-- [CodeSandbox](https://codesandbox.io/p/live/7a567fdd-36ad-4494-9336-1075e66fd544)
+- [CodeSandbox](https://codesandbox.io/p/devbox/react-native-drag-n-drop-everywhere-hc42vv?file=%2Fbabel.config.js)
 
 ## Installation
 
